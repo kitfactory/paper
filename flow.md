@@ -229,6 +229,8 @@ qϕ(⋅) is represented using a recognition model or inference network (Rezende 
 An inference network is a model that learns an inverse map from observations to latent variables. Using an inference network, we avoid the need to compute per data point variational parameters, but can instead compute a set of global variational parameters ϕ valid for inference at both training and test time.
 
 
+hoge
+
 
 This allows us to amortize the cost of inference by generalizing between the posterior estimates for all latent variables through the parameters of the inference network. The simplest inference models that we can use are diagonal Gaussian densities, qϕ(z|x)=N(z|μϕ(%$x$
 )

@@ -1,5 +1,5 @@
 
-# Variational Inference with Normalizing Flows
+# Variational Inference with Normalizing Flows  
 
 ## 概要 
 
@@ -9,7 +9,16 @@
 
 確率論的モデリングをますます拡大するデータセットのますます複雑な問題に拡張する手段として、変分推論に新たな関心が高まっています。
 
-There has been a great deal of renewed interest in variational inference as a means of scaling probabilistic modeling to increasingly complex problems on increasingly larger data sets. 
+
+
+There has been a great deal of renewed interest in variational inference as a means of scaling probabilistic modeling to increasingly complex problems on increasingly larger data sets.
+ > 
+
+
+ > 
+
+
+ 
 
 
 変分推論は現在、テキストの大規模な話題モデル（Hoffman et al。、2013）の中核に位置し、半教師付き分類（Kingma et al。、2014）の最先端技術を提供し、モデルを駆動する （Gregor et al。、2014、2015; Rezende et al。、2014; Kingma＆Welling、2014）、多くの物理的および化学的システムを理解するための標準的ツールとなっています。
@@ -19,7 +28,14 @@ Variational inference now lies at the core of large-scale topic models of text (
 
 これらの成功および継続的な進歩にもかかわらず、統計的推論のためのデフォルト方法として、変分推論には、その力を制限し、より広い採用を妨げる様々な方法の多くの欠点があります。その制限の1つであり、事後分布の近似の選択です。本稿ではこの問題を取り上げます。
 
- Despite these successes and ongoing advances, there are a number of disadvantages of variational methods that limit their power and hamper their wider adoption as a default method for statistical inference. It is one of these limitations, the choice of posterior approximation, that we address in this paper.
+
+Despite these successes and ongoing advances, there are a number of disadvantages of variational methods that limit their power and hamper their wider adoption as a default method for statistical inference.
+ > 
+これらの成功および継続的な進歩にもかかわらず、統計的推論のためのデフォルト方法として、彼らの力を制限し、それらのより広い採用を妨げる様々な方法の多くの欠点がある。
+
+It is one of these limitations, the choice of posterior approximation, that we address in this paper.
+ > 
+
 
 
 変分推論では、困難な事後分布を既知の確率分布のクラスで近似する必要があり、その上で真の事後確率に対する最善の近似を探索する。
@@ -28,12 +44,12 @@ Variational inference requires that intractable posterior distributions be appro
 
 使用される近似のクラスはしばしば限定されており、例えば、平均場近似は、真の事後分布に似た解が決してないことを意味する。
 
- The class of approximations used is often limited, e.g., mean-field approximations, implying that no solution is ever able to resemble the true posterior distribution. 
+The class of approximations used is often limited, e.g., mean-field approximations, implying that no solution is ever able to resemble the true posterior distribution. 
  
 
 これは、MCMCのような他の推論法とは異なり、漸近体制においてさえ、真の事後分布を回復することができないという点で、変分法に対する広く提起された反対である。
  
- This is a widely raised objection to variational methods, in that unlike other inferential methods such as MCMC, even in the asymptotic regime we are unable recover the true posterior distribution.
+This is a widely raised objection to variational methods, in that unlike other inferential methods such as MCMC, even in the asymptotic regime we are unable recover the true posterior distribution.
 
 より豊かでより忠実な後部近似がより良い性能をもたらすという多くの証拠がある。 例えば、平均場近似を利用するシグモイド・ビリーフネットワークと比較すると、深い自己回帰ネットワークは、パフォーマンスの明確な改善をもたらす自己回帰依存構造を持つ後方近似を使用します（Mnih＆Gregor、2014）。
 
@@ -184,6 +200,10 @@ We focus on models with continuous latent variables, and the approach we take co
  確率的な逆伝播には2つのステップが含まれます。
 
 
+
+
+
+
 ### 再パラメータ化。
 
  既知の分布と微分可能な変換（位置 - スケール変換や累積分布関数など）などにより潜在変数を再パラメータ化します。
@@ -229,36 +249,18 @@ qϕ(⋅) is represented using a recognition model or inference network (Rezende 
 An inference network is a model that learns an inverse map from observations to latent variables. Using an inference network, we avoid the need to compute per data point variational parameters, but can instead compute a set of global variational parameters ϕ valid for inference at both training and test time.
 
 
-hoge
+This allows us to amortize the cost of inference by generalizing between the posterior estimates for all latent variables through the parameters of the inference network. The simplest inference models that we can use are diagonal Gaussian densities.
+
+これにより、推論ネットワークのパラメータを介してすべての潜在変数の事後推定値を一般化することにより、推論のコストを償却することができます。 我々が使用できる最も単純な推論モデルは、対角ガウス密度である。
+
+ qϕ(z|x)=N(z|μϕ(%$x$),diag(σ2ϕ(x))),
 
 
-This allows us to amortize the cost of inference by generalizing between the posterior estimates for all latent variables through the parameters of the inference network. The simplest inference models that we can use are diagonal Gaussian densities, qϕ(z|x)=N(z|μϕ(%$x$
-)
-,
-diag
-(
-σ
-2
-ϕ
-(
-x
-)
-)
-)
-,
- where the mean function 
-μ
-ϕ
-(
-x
-)
- and the standard-deviation function 
-σ
-ϕ
-(
-x
-)
- are specified using deep neural networks.
+the mean function μϕ(x) and the standard-deviation function σϕ(x) are specified using deep neural networks.
+
+ディープニューラルネットワークを用いて平均関数μφ（x）と標準偏差関数σφ（x）を特定する。
+
+
 
 
 

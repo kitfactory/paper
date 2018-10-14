@@ -84,16 +84,61 @@ Flow-based generative models have so far gained little attention in the research
 
 Exact latent-variable inference and log-likelihood evaluation. In VAEs, one is able to infer only approximately the value of the latent variables that correspond to a datapoint.
 
-正確な潜在変数推論と対数尤度評価。VAEでは、データポイントに対応する潜在変数の値のおおよそを推論することができる。GANには潜在変数を推論するエンコーダが全くありません。可逆生成モデルでは近似なしで正確に行うことができる。 これは正確な推論につながるだけでなく、データの下限の代わりにデータの正確な対数尤度の最適化も可能にします。
+正確な潜在変数推論と対数尤度評価。VAEでは、データポイントに対応する潜在変数の値のおおよそを推論することができる。GANには潜在変数を推論するエンコーダが全くありません。可逆生成モデルでは近似なしで正確に行うことができる。フローベースの方法は正確な推論につながるだけでなく、データの下限の代わりにデータの正確な対数尤度の最適化も可能にします。
 
 GAN’s have no encoder at all to infer the latents. In reversible generative models, this can be done exactly without approximation. Not only does this lead to accurate inference, it also enables optimization of the exact log-likelihood of the data, instead of a lower bound of it.
 
 
-
 Efficient inference and efficient synthesis. Autoregressive models, such as the PixelCNN (van den Oord et al., 2016b), are also reversible, however synthesis from such models is difficult to parallelize, and typically inefficient on parallel hardware. Flow-based generative models like Glow (and RealNVP) are efficient to parallelize for both inference and synthesis.
 
-    Useful latent space for downstream tasks. The hidden layers of autoregressive models have unknown marginal distributions, making it much more difficult to perform valid manipulation of data. In GANs, datapoints can usually not be directly represented in a latent space, as they have no encoder and might not have full support over the data distribution.  (Grover et al., 2018). This is not the case for reversible generative models and VAEs, which allow for various applications such as interpolations between datapoints and meaningful modifications of existing datapoints.
+効率的な推論と効率的な合成。 PixelCNN（van den Oordら、2016b）のような自己回帰モデルも可逆ですが、このようなモデルからの合成は並列化が難しく、並列ハードウェアでは一般的に非効率です。 Glow（およびRealNVP）のようなフローベースの生成モデルは、推論と合成の両方を並列化するため効率的です。
 
-    Significant potential for memory savings. Computing gradients in reversible neural networks requires an amount of memory that is constant instead of linear in their depth, as explained in the RevNet paper (Gomez et al., 2017).
+Useful latent space for downstream tasks. The hidden layers of autoregressive models have unknown marginal distributions, making it much more difficult to perform valid manipulation of data. In GANs, datapoints can usually not be directly represented in a latent space, as they have no encoder and might not have full support over the data distribution.  (Grover et al., 2018). This is not the case for reversible generative models and VAEs, which allow for various applications such as interpolations between datapoints and meaningful modifications of existing datapoints.
+
+下流のタスクに役立つ潜在変数空間。自己回帰モデルの潜在層は不明な周縁分布を持ち、データの有効な操作を行うことをはるかに困難にします。 GANでは、潜在空間内にデータポイントを直接表現することはできません。なぜなら、エンコーダがなく、データの分布を完全にサポートしていない可能性があるからです。 （Groverら、2018）。 これは、データポイント間の補間や既存のデータポイントの有意義な変更などのさまざまなアプリケーションを可能にする可逆生成モデルおよびVAEでは当てはまりません。
+
+Significant potential for memory savings. Computing gradients in reversible neural networks requires an amount of memory that is constant instead of linear in their depth, as explained in the RevNet paper (Gomez et al., 2017).
+
+メモリ節約の可能性。 可逆ニューラルネットワークの勾配を計算するには、RevNetの論文（Gomez et al。、2017）で説明されているように、その深さが線形ではなく一定のメモリ量が必要とされます。
 
 In this paper we propose a new a generative flow coined Glow, with various new elements as described in Section 3. In Section 5, we compare our model quantitatively with previous flows, and in Section  6, we study the qualitative aspects of our model on high-resolution datasets.
+
+本稿では、第3節で述べたように、新たな要素を追加した新しい生成的フローであるグローを提案する。第5節では、我々のモデルを以前のフローと定量的に比較し、第6章では、 高解像度のデータセット。
+
+
+
+背景：フローベースの生成モデル
+
+Background: Flow-based Generative Models
+
+Let x be a high-dimensional random vector with unknown true distribution x∼p∗(x). We collect an i.i.d. dataset D, and choose a model pθ(x) with parameters θ. In case of discrete data x, the log-likelihood objective is then equivalent to minimizing:
+
+
+	L(D)=1NN∑i=1−logpθ(x(i)) 		(1)
+
+In case of continuous data x, we minimize the following:
+	L(D) 	≃1NN∑i=1−logpθ(~x(i))+c 		(2)
+
+where ~x(i)=x(i)+u with u∼U(0,a), and c=−M⋅loga where a is determined by the discretization level of the data and M is the dimensionality of x. Both objectives (eqs. (1) and (2)) measure the expected compression cost in nats or bits; see  (Dinh et al., 2016). Optimization is done through stochastic gradient descent using minibatches of data (Kingma and Ba, 2015).
+
+In most flow-based generative models (Dinh et al., 2014, 2016), the generative process is defined as:
+	z 	∼pθ(z) 		(3)
+	x 	=gθ(z) 		(4)
+
+where z is the latent variable and pθ(z) has a (typically simple) tractable density, such as a spherical multivariate Gaussian distribution: pθ(z)=N(z;0,I). The function gθ(..) is invertible, also called bijective, such that given a datapoint x, latent-variable inference is done by z=fθ(x)=g−1θ(x). For brevity, we will omit subscript θ from fθ and gθ.
+
+We focus on functions where f (and, likewise, g) is composed of a sequence of transformations: f=f1∘f2∘⋯∘fK, such that the relationship between x and z can be written as:
+	xf1⟷h1f2⟷h2⋯fK⟷z 		(5)
+
+Such a sequence of invertible transformations is also called a (normalizing) flow (Rezende and Mohamed, 2015). Under the change of variables of eq. (4), the probability density function (pdf) of the model given a datapoint can be written as:
+	logpθ(x) 	=logpθ(z)+log|det(dz/dx)| 		(6)
+		=logpθ(z)+K∑i=1log|det(dhi/dhi−1)| 		(7)
+
+where we define h0≜x and hK≜z for conciseness. The scalar value log|det(dhi/dhi−1)| is the logarithm of the absolute value of the determinant of the Jacobian matrix (dhi/dhi−1), also called the log-determinant. This value is the change in log-density when going from hi−1 to hi under transformation fi. While it may look intimidating, its value can be surprisingly simple to compute for certain choices of transformations, as previously explored in (Deco and Brauer, 1995; Dinh et al., 2014; Rezende and Mohamed, 2015; Kingma et al., 2016). The basic idea is to choose transformations whose Jacobian dhi/dhi−1 is a triangular matrix. For those transformations, the log-determinant is simple:
+	log|det(dhi/dhi−1)|={sum}(log|{diag}(dhi/dhi−1)|) 		(8)
+
+where {sum}() takes the sum over all vector elements, log() takes the element-wise logarithm, and {diag}() takes the diagonal of the Jacobian matrix.
+(a) One step of our flow.
+	
+(b) Multi-scale architecture (Dinh et al., 2016).
+Figure 2: We propose a generative flow where each step (left) consists of an actnorm step, followed by an invertible 1×1 convolution, followed by an affine transformation (Dinh et al., 2014). This flow is combined with a multi-scale architecture (right). See Section 3 and Table 1.

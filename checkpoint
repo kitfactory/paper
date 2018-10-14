@@ -1,0 +1,2 @@
+model_checkpoint_path: "autoencoder.hdf5"
+all_model_checkpoint_paths: "autoencoder.hdf5"

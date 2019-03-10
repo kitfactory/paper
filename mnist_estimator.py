@@ -10,8 +10,6 @@ from tensorflow.keras.callbacks import TensorBoard, ModelCheckpoint, EarlyStoppi
 
 class MnistClassifyTest():
 
-
-
     def load_data(self):
         (self.x_train, self.y_train), (self.x_test, self.y_test) = mnist.load_data()
         self.x_train = self.x_train.astype('float32')
@@ -54,7 +52,7 @@ class MnistClassifyTest():
         self.model.add(Dense(128, activation='relu'))
         self.model.add(Dropout(0.5))
         self.model.add(Dense(10, activation='softmax'))
-        
+
 
     def create_callback(self):
         self.callback = [
